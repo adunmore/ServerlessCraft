@@ -1,0 +1,31 @@
+on: 
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9.4
+      - uses: abatilo/actions-poetry@v2.1.0
+      - name: Generate requirements.txt from pyproject.toml
+        run: poetry export -f requirements.txt --without-hashes -o requirements.txt
+      - uses: aws-actions/setup-sam@v1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+          GUILD_ID: ${{ secrets.GUILD_ID }}
+      - run: sam build --use-container
+      - run: |
+          sam deploy \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --stack-name serverlesscraft \
+            --s3-bucket serverlesscraft \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides DiscordClientId=${{ secrets.DISCORD_CLIENT_ID }} DiscordPublicKey=${{ secrets.DISCORD_PUBLIC_KEY }} DiscordClientSecret=${{ secrets.DISCORD_CLIENT_SECRET }} GuildId=${{ secrets.GUILD_ID }}
