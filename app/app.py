@@ -1,7 +1,10 @@
 import os
+import time
+import threading
+import multiprocessing
 
 from flask import Flask, request
-from flask_discord_interactions import DiscordInteractions
+from flask_discord_interactions import DiscordInteractions, Role
 from apig_wsgi import make_lambda_handler
 
 import botocore
@@ -17,12 +20,18 @@ app.config["DISCORD_CLIENT_ID"] = os.environ["DISCORD_CLIENT_ID"]
 app.config["DISCORD_PUBLIC_KEY"] = os.environ["DISCORD_PUBLIC_KEY"]
 app.config["DISCORD_CLIENT_SECRET"] = os.environ["DISCORD_CLIENT_SECRET"]
 
-server = Server(params.ec2_params)
-
 
 @discord.command()
-def ping(ctx):
+def ping(ctx, role: Role):
     "Respond with a friendly 'pong'!"
+    # breakpoint()
+
+    def do_followup():
+        time.sleep(5)
+        ctx.send("(bonus pong)")
+
+    thread = threading.Thread(target=do_followup)
+    thread.start()
     return "Pong!"
 
 
@@ -32,62 +41,78 @@ def hello(ctx, name: str = "Aaron"):
     return f"Hello, {name}"
 
 
+server = Server(params.ec2_params)
+
+
 @discord.command()
-def start(self, ctx):
+def start(ctx):
     """
     Starts minecraft server (if one isn't yet running).
-    - Will print ip in chat.
-    - Requires discord role mc_auth (ask dint)
     """
-    if "mc_auth" in [role.name for role in ctx.author.roles]:
-        if (
-            server.instance
-        ):  # this won't work: let's convert that to a property that checks the aws api for a matching instance
-            await ctx.send(
-                "Server already running at {ip}".format(
-                    ip=self.server.instance.public_ip_address
-                )
-            )
-        else:
-            await ctx.send("Starting server")
+    #     - Will print ip in chat.
+    # - Requires discord role mc_auth (ask dint)
+
+    # if "mc_auth" in [role.name for role in ctx.author.roles]:
+    if server.instance:
+        return "Server already running at {ip}".format(
+            ip=server.instance.public_ip_address
+        )
+    else:
+
+        def start_server():
             try:
-                self.server.start_instance()
+                print("starting server!")
+                server.start_instance()
+                ctx.send(
+                    "Server running at {ip}".format(
+                        ip=server.instance.public_ip_address
+                    )
+                )
             except botocore.exceptions.ClientError as e:
-                await ctx.send(
+                server.instance.terminate()
+                ctx.send(
                     "Problem with Amazon. Bug aaron with this error message: \n > {} \n Server startup canceled.".format(
                         str(e)
                     )
                 )
-                self.server.instance.terminate()
-                raise e
-            await ctx.send(
-                "Server running at {ip}".format(
-                    ip=self.server.instance.public_ip_address
-                )
-            )
+
+        thread = threading.Thread(target=start_server)
+        thread.start()
+        return "Starting server"
 
 
 @discord.command()
-def stop(self, ctx):
+def stop(ctx):
     """
     Stops minecraft server (if running).
-    - Requires discord role mc_auth (ask dint)
     """
+    # - Requires discord role mc_auth (ask dint)
 
     # todo: gracefully stop server. ie run save-all & stop in
     # mc
-    if "mc_auth" in [role.name for role in ctx.author.roles]:
-        if not self.server.instance:
-            await ctx.send("No server running.")
-        else:
-            await ctx.send("Stopping server")
-            self.server.instance.terminate()
-            await ctx.send("Server stopped")
+
+    # if "mc_auth" in [role.name for role in ctx.author.roles]:
+    # todo: figure out a way to get role name :/
+    if not server.instance:
+        return "No server running."
+    else:
+
+        def stop_server():
+            print("stopping server")
+            server.instance.terminate()
+            ctx.send("Server stopped")
+
+        thread = threading.Thread(target=stop_server)
+        thread.start()
+
+        return "Stopping server"
+    # else:
+    #     return "Not authorized!"
 
 
 discord.set_route("/interactions")
 
-discord.update_slash_commands(guild_id=os.environ["GUILD_ID"])
+# discord.update_slash_commands(guild_id=os.environ["GUILD_ID"])
 
 handler = make_lambda_handler(app)
 
