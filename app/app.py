@@ -67,6 +67,24 @@ def start(self, ctx):
             )
 
 
+@discord.command()
+def stop(self, ctx):
+    """
+    Stops minecraft server (if running).
+    - Requires discord role mc_auth (ask dint)
+    """
+
+    # todo: gracefully stop server. ie run save-all & stop in
+    # mc
+    if "mc_auth" in [role.name for role in ctx.author.roles]:
+        if not self.server.instance:
+            await ctx.send("No server running.")
+        else:
+            await ctx.send("Stopping server")
+            self.server.instance.terminate()
+            await ctx.send("Server stopped")
+
+
 discord.set_route("/interactions")
 
 discord.update_slash_commands(guild_id=os.environ["GUILD_ID"])
