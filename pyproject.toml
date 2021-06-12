@@ -11,8 +11,10 @@ mypy = "^0.812"
 pylint = "^2.8.2"
 Flask-Discord-Interactions = "^0.1.9"
 apig-wsgi = "^2.11.0"
+boto3 = "^1.17.93"
 
 [tool.poetry.dev-dependencies]
+black = {version = "^21.6b0", allow-prereleases = true}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
