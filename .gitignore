@@ -130,3 +130,6 @@ dmypy.json
 
 # Poetry stuff
 poetry.lock
+
+# Zappa settings (includes secrets - should be generated at deploy time from zappa_settings.json.tpl)
+zappa_settings.json
