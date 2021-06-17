@@ -13,7 +13,7 @@ ec2_params = {
                 },
             }
         ],
-        "ImageId": "ami-0e98568d8039d8fab",
+        "ImageId": "ami-08ba3f904aeff7618",
         "InstanceType": "m5.large",
         # 'InstanceType': 't3a.nano', # testing instance size
         "KeyName": "mc-keypair-1",

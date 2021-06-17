@@ -94,6 +94,16 @@ class Server:
 
         return request_metadata["InstanceId"]
 
+    def terminate(self):
+        if self.instance:
+            try:
+                self.instance.terminate()
+                self._instance = None
+            except Exception as e:
+                raise e
+        else:
+            raise ValueError("No instance running")
+
 
 if __name__ == "__main__":
 
