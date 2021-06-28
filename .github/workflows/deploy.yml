@@ -20,6 +20,8 @@ jobs:
         run: pip install zappa
       - name: Generate virtual environment from pyptoject.toml
         run: poetry install
+      - name: Activate virtual environment
+        run: source .venv/bin/activate
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
