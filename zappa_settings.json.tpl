@@ -2,7 +2,6 @@
     "dev": {
         "app_function": "app.app",
         "aws_region": "us-east-2",
-        "profile_name": "lambdatestuser",
         "project_name": "serverlesscraft",
         "runtime": "python3.8",
         "s3_bucket": "hello-zappa",
