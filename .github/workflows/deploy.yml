@@ -16,8 +16,6 @@ jobs:
         with:
           python-version: 3.8.9
       - uses: abatilo/actions-poetry@v2.1.0
-      - name: Install Zappa
-        run: pip install zappa
       - name: Generate virtual environment from pyptoject.toml
         run: poetry install
       - name: Activate virtual environment
