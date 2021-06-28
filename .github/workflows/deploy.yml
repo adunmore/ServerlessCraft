@@ -1,4 +1,4 @@
-on: 
+on:
   push:
     branches:
       - main
@@ -13,19 +13,20 @@ jobs:
       - uses: abatilo/actions-poetry@v2.1.0
       - name: Generate requirements.txt from pyproject.toml
         run: poetry export -f requirements.txt --without-hashes -o requirements.txt
-      - uses: aws-actions/setup-sam@v1
+      - name: Generate virtual environment from pyptoject.toml
+        run: poetry install
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
-          GUILD_ID: ${{ secrets.GUILD_ID }}
-      - run: sam build --use-container
-      - run: |
-          sam deploy \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --stack-name serverlesscraft \
-            --s3-bucket serverlesscraft \
-            --capabilities CAPABILITY_IAM \
-            --parameter-overrides DiscordClientId=${{ secrets.DISCORD_CLIENT_ID }} DiscordPublicKey=${{ secrets.DISCORD_PUBLIC_KEY }} DiscordClientSecret=${{ secrets.DISCORD_CLIENT_SECRET }} GuildId=${{ secrets.GUILD_ID }}
+      - name: Set Discord secrets
+        env:
+          DISCORD_CLIENT_ID: secrets.DISCORD_CLIENT_ID
+          DISCORD_PUBLIC_KEY: secrets.DISCORD_PUBLIC_KEY
+          DISCORD_CLIENT_SECRET: secrets.DISCORD_CLIENT_SECRET
+          GUILD_ID: secrets.GUILD_ID
+      - name: Generate zappa_settings config with Discord secrets
+        run: envsubst envsubst < zappa_settings.json.tpl > zappa_settings.json
+      - name: Update zappa deployment
+        run: zappa update dev
