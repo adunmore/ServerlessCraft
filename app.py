@@ -1,10 +1,10 @@
 import os
 import time
 import threading
-import multiprocessing
+import requests
 
 from flask import Flask, request, after_this_request, Response
-from flask_discord_interactions import Context, DiscordInteractions, Role
+from flask_discord_interactions import Context, DiscordInteractions, Role, Member
 from apig_wsgi import make_lambda_handler
 
 from zappa.asynchronous import task
@@ -59,7 +59,7 @@ def delayed_task(ctx_json):
 @discord.command()
 def hello(
     ctx,
-    name: str = "you dipshit, you forgot to include a name for me to say back, you moron, you absolute nonce",
+    name: str = "you dummy, you forgot to include a name for me to say back, you moron, you absolute nonce",
 ):
     "Have the bot say hello!"
     return f"Hello, {name}"
