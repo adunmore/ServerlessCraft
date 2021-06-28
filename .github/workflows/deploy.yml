@@ -16,10 +16,8 @@ jobs:
         with:
           python-version: 3.8.9
       - uses: abatilo/actions-poetry@v2.1.0
-      - name: Generate virtual environment from pyptoject.toml and activate
-        run: |
-          poetry install
-          source ./.venv/bin/activate
+      - name: Generate virtual environment from pyptoject.toml
+        run: poetry install
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -28,4 +26,4 @@ jobs:
       - name: Generate zappa_settings config with Discord secrets
         run: envsubst envsubst < zappa_settings.json.tpl > zappa_settings.json
       - name: Update zappa deployment
-        run: zappa update dev
+        run: poetry run zappa update dev
