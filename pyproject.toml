@@ -5,14 +5,18 @@ description = ""
 authors = ["Aaron Dunmore <aedunmore@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "3.9.4"
-Flask = "^2.0.1"
+python = "^3.8"
+Flask = "^1.1.0"
 mypy = "^0.812"
 pylint = "^2.8.2"
 Flask-Discord-Interactions = "^0.1.9"
 apig-wsgi = "^2.11.0"
+boto3 = "^1.17.93"
+zappa = "^0.52.0"
+jsonpickle = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
+black = {version = "^21.6b0", allow-prereleases = true}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
