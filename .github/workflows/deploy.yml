@@ -18,8 +18,6 @@ jobs:
       - uses: abatilo/actions-poetry@v2.1.0
       - name: Install Zappa
         run: pip install zappa
-      - name: Generate requirements.txt from pyproject.toml
-        run: poetry export -f requirements.txt --without-hashes -o requirements.txt
       - name: Generate virtual environment from pyptoject.toml
         run: poetry install
       - uses: aws-actions/configure-aws-credentials@v1
